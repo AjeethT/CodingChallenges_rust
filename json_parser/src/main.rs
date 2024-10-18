@@ -1,4 +1,4 @@
-use std::default;
+use std::{char, default, str::Chars};
 use regex::Regex;
 
 const LEFT_BRACE: &str = "LEFT_BRACE";
@@ -22,48 +22,48 @@ fn Lexer(input: String) -> Vec<Token> {
     let mut current_position: usize = 0;
     let mut tokens: Vec<Token> = Vec::new();
 
-    for i in input.chars() {
-        let character: String = i.to_string();
+    while current_position < input.len() {
+        let character = input.chars().nth(current_position).unwrap();
 
-        match i {
+        match character{
             '{' => {
                 tokens.push(Token {
-                    value: character,
+                    value: character.to_string(),
                     token_type: LEFT_BRACE.to_string(),
                 });
                 current_position = current_position + 1;
             }
             '}' => {
                 tokens.push(Token {
-                    value: character,
+                    value: character.to_string(),
                     token_type: RIGHT_BRACE.to_string(),
                 });
                 current_position = current_position + 1;
             }
             '[' => {
                 tokens.push(Token {
-                    value: character,
+                    value: character.to_string(),
                     token_type: LEFT_BRACKET.to_string(),
                 });
                 current_position = current_position + 1;
             }
             ']' => {
                 tokens.push(Token {
-                    value: character,
+                    value: character.to_string(),
                     token_type: RIGHT_BRACKET.to_string(),
                 });
                 current_position = current_position + 1;
             }
             ':' => {
                 tokens.push(Token {
-                    value: character,
+                    value: character.to_string(),
                     token_type: COLON.to_string(),
                 });
                 current_position = current_position + 1;
             }
             ',' => {
                 tokens.push(Token {
-                    value: character,
+                    value: character.to_string(),
                     token_type: COMMA.to_string(),
                 });
                 current_position = current_position + 1;
@@ -92,12 +92,12 @@ fn Lexer(input: String) -> Vec<Token> {
                         let reg_null = Regex::new(r"null").unwrap();
                         let reg_space = Regex::new(r"\s").unwrap();
 
-                        if reg_space.is_match(&character) {
+                        if reg_space.is_match(&character.to_string()) {
                             current_position=current_position+1;
                         }
-                        else if reg_num.is_match(&character) {
+                        else if reg_num.is_match(&character.to_string()) {
+                            let mut number_seq = String::new();
                             for n in input[current_position..].chars() {
-                                let mut number_seq = String::new();
                                 if!reg_num.is_match(&n.to_string()) {
                                     break;
                                 } else {
@@ -105,6 +105,10 @@ fn Lexer(input: String) -> Vec<Token> {
                                     current_position = current_position + 1;
                                 }
                             }
+                            tokens.push(Token{
+                                value: number_seq,
+                                token_type: NUMBER.to_string(),
+                            });
                         }
                         else if reg_true.is_match(&input[current_position..current_position+4]) {
                             tokens.push(Token {
@@ -139,7 +143,7 @@ fn Lexer(input: String) -> Vec<Token> {
 
 fn main() {
     println!("A simple Json Parser in Rust");
-    let input_json = r#"{"name":"Ajeeth"}"#;
+    let input_json = r#"{"name":1234}"#;
     let tokens = Lexer(input_json.to_string());
     for token in tokens {
         println!("Token: {}, Value: {}", token.token_type, token.value);
